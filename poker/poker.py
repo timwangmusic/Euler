@@ -4,7 +4,6 @@ from collections import Counter
 from utils import is_arithmetic_progression
 from rank import Rank
 from hands import hands_comparer, Card, Hand
-from pprint import pprint as pp
 
 
 class PokerHandComparer:
@@ -21,7 +20,18 @@ class PokerHandComparer:
 
     @classmethod
     def show_result(cls, hand: Hand, rank: Rank) -> None:
-        pp(f"{cls.print_hand(hand)} with rank {rank}!")
+        ranks = {
+            Rank.HIGH_CARD: "High card",
+            Rank.ONE_PAIR: "One pair",
+            Rank.TWO_PAIRS: "Two pairs",
+            Rank.THREE_OF_A_KIND: "Three of a kind",
+            Rank.STRAIGHT: "Straight",
+            Rank.FLUSH: "Flush",
+            Rank.FULL_HOUSE: "Full house",
+            Rank.FOUR_OF_A_KIND: "Four of a kind",
+            Rank.STRAIGHT_FLUSH: "Straight flush",
+        }
+        print(f"{cls.print_hand(hand)} with rank {ranks[rank]}!")
 
     @classmethod
     def compare(cls, hand_a, hand_b: Hand) -> None:
@@ -29,8 +39,10 @@ class PokerHandComparer:
         rank_b = calculate_rank(hand_b)
         if rank_a < rank_b:
             cls.show_result(hand_b, rank_b)
-        elif rank_b < rank_a:
+            return
+        if rank_b < rank_a:
             cls.show_result(hand_a, rank_a)
+            return
         cls.show_result(hands_comparer(hand_a, hand_b, rank_a), rank_a)
 
     @classmethod
@@ -53,14 +65,19 @@ class PokerHandComparer:
 
     @classmethod
     def main(cls):
+        face_cards = {'J': 11, 'Q': 12, 'K': 13, 'A': 14}
         while True:
-            pp("please enter the first hand")
+            print("Welcome to use poker hand comparer!")
+            print("Please enter the first hand.")
             cards_a = []
             skip_second_hand = False
             for s in ["first", "second", "third", "fourth", "fifth"]:
-                pp(f"enter {s} card:")
-                rank = int(input("rank:"))
-                suit = input("suit:")
+                print(f"Enter the {s} card:")
+                rank = input("Rank:")
+                if rank in face_cards:
+                    rank = face_cards[rank]
+                rank = int(rank)
+                suit = input("Suit:")
                 card = Card(rank, suit)
                 if not cls.is_card_valid(card):
                     skip_second_hand = True
@@ -68,20 +85,23 @@ class PokerHandComparer:
                 cards_a.append(card)
 
             if skip_second_hand:
-                pp("first hand input error, skipping second hand input...")
+                print("first hand input error, skipping second hand input...")
                 continue
 
             if not cls.is_hand_valid(Hand(cards_a)):
-                pp("invalid first hand, skipping second hand input...")
+                print("invalid first hand, skipping second hand input...")
                 continue
 
-            pp("please enter the second hand")
+            print("please enter the second hand.")
             cards_b = []
             skip_comparison = False
             for s in ["first", "second", "third", "fourth", "fifth"]:
-                pp(f"enter {s} card:")
-                rank = int(input("rank:"))
-                suit = input("suit:").upper()
+                print(f"Enter the {s} card:")
+                rank = input("Rank:")
+                if rank in face_cards:
+                    rank = face_cards[rank]
+                rank = int(rank)
+                suit = input("Suit:").upper()
                 card = Card(rank, suit)
                 if not cls.is_card_valid(card):
                     skip_comparison = True
@@ -89,11 +109,11 @@ class PokerHandComparer:
                 cards_b.append(card)
 
             if skip_comparison:
-                pp("second hand input error")
+                print("second hand input error")
                 continue
 
             if not cls.is_hand_valid(Hand(cards_b)):
-                pp("invalid second hand")
+                print("invalid second hand")
                 continue
 
             cls.compare(Hand(cards_a), Hand(cards_b))
